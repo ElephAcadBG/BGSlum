@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Bengaluru Traffic + Tech Parks + Slums</title>
+  <title>Bengaluru Traffic + Tech Parks + Slums + Ring Roads</title>
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
@@ -19,6 +19,7 @@
       left: 10px;
       border-radius: 4px;
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      max-width: 180px;
     }
 
     .legend div {
@@ -69,7 +70,9 @@
   <div><span style="background:#ffc107;"></span>Moderate Traffic</div>
   <div><span style="background:#fd7e14;"></span>Heavy Traffic</div>
   <div><span style="background:#dc3545;"></span>Severe Traffic</div>
-  <div><span style="background:#800080;"></span>Slum Area</div>
+  <div><span style="background:#ff00ff;"></span>Slum Area</div>
+  <div><span style="background:#6f42c1;"></span>Inner Ring Road</div>
+  <div><span style="background:#20c997;"></span>Outer Ring Road</div>
 </div>
 
 <!-- Controls -->
@@ -86,7 +89,7 @@
   const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11',
-    center: [77.5946, 12.9716],
+    center: [77.5946, 12.9716], // Bengaluru center
     zoom: 11
   });
 
@@ -202,13 +205,63 @@
           type: 'fill',
           source: 'slums',
           paint: {
-            'fill-color': '#800080',        // purple
+            'fill-color': '#ff00ff',  // changed to purple for slums to avoid conflict
             'fill-opacity': 0.4,
-            'fill-outline-color': '#4B0082' // indigo
+            'fill-outline-color': '#990099'
           }
         });
       })
       .catch(err => console.error('Failed to load slums data:', err));
+
+    // Load inner ring road
+    fetch('https://raw.githubusercontent.com/ElephAcadBG/BGSlum/main/innerring.geojson')
+      .then(res => res.json())
+      .then(data => {
+        map.addSource('inner-ring', {
+          type: 'geojson',
+          data: data
+        });
+
+        map.addLayer({
+          id: 'inner-ring-layer',
+          type: 'line',
+          source: 'inner-ring',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#6f42c1', // purple
+            'line-width': 5
+          }
+        });
+      })
+      .catch(err => console.error('Failed to load inner ring road:', err));
+
+    // Load outer ring road
+    fetch('https://raw.githubusercontent.com/ElephAcadBG/BGSlum/main/outerring.geojson')
+      .then(res => res.json())
+      .then(data => {
+        map.addSource('outer-ring', {
+          type: 'geojson',
+          data: data
+        });
+
+        map.addLayer({
+          id: 'outer-ring-layer',
+          type: 'line',
+          source: 'outer-ring',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#20c997', // teal
+            'line-width': 5
+          }
+        });
+      })
+      .catch(err => console.error('Failed to load outer ring road:', err));
   });
 </script>
 </body>
