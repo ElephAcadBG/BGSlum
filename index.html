@@ -18,37 +18,12 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
     }
 
-    .legend {
-      position: absolute;
-      bottom: 30px;
-      left: 10px;
-    }
+    .legend { position: absolute; bottom: 30px; left: 10px; }
+    .controls { position: absolute; top: 10px; left: 10px; }
+    .layers { position: absolute; top: 10px; right: 10px; width: 170px; }
 
-    .controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
-
-    .layers {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 170px;
-    }
-
-    .legend div, .layers label {
-      display: flex;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .legend span {
-      display: inline-block;
-      width: 16px;
-      height: 10px;
-      margin-right: 6px;
-    }
+    .legend div, .layers label { display: flex; align-items: center; margin-bottom: 4px; }
+    .legend span { display: inline-block; width: 16px; height: 10px; margin-right: 6px; }
 
     .icon {
       background-image: url('https://cdn-icons-png.flaticon.com/512/684/684908.png');
@@ -138,11 +113,7 @@
 
   function loadTrafficLayer() {
     if (!map.getSource('traffic')) {
-      map.addSource('traffic', {
-        type: 'vector',
-        url: 'mapbox://mapbox.mapbox-traffic-v1'
-      });
-
+      map.addSource('traffic', { type: 'vector', url: 'mapbox://mapbox.mapbox-traffic-v1' });
       map.addLayer({
         id: 'traffic',
         type: 'line',
@@ -151,8 +122,7 @@
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': [
-            'match',
-            ['get', 'congestion'],
+            'match', ['get', 'congestion'],
             'low', '#28a745',
             'moderate', '#ffc107',
             'heavy', '#fd7e14',
@@ -172,8 +142,7 @@
       : { low: '#28a745', moderate: '#ffc107', heavy: '#fd7e14', severe: '#dc3545' };
 
     map.setPaintProperty('traffic', 'line-color', [
-      'match',
-      ['get', 'congestion'],
+      'match', ['get', 'congestion'],
       'low', colorMap.low,
       'moderate', colorMap.moderate,
       'heavy', colorMap.heavy,
@@ -202,10 +171,11 @@
     loadTrafficLayer();
     addTechParkMarkers();
 
+    // Slums
     fetch('https://raw.githubusercontent.com/ElephAcadBG/BGSlum/main/bangalore-slum3.geojson')
       .then(res => res.json())
       .then(data => {
-        map.addSource('slums', { type: 'geojson', data: data });
+        map.addSource('slums', { type: 'geojson', data });
         map.addLayer({
           id: 'slums-layer',
           type: 'fill',
@@ -218,57 +188,49 @@
         });
       });
 
+    // Inner ring
     fetch('https://raw.githubusercontent.com/ElephAcadBG/BGSlum/main/innerring.geojson')
       .then(res => res.json())
       .then(data => {
-        map.addSource('inner-ring', { type: 'geojson', data: data });
+        map.addSource('inner-ring', { type: 'geojson', data });
         map.addLayer({
           id: 'inner-ring-layer',
           type: 'line',
           source: 'inner-ring',
-          paint: {
-            'line-color': '#6f42c1',
-            'line-width': 3
-          }
+          paint: { 'line-color': '#6f42c1', 'line-width': 3 }
         });
       });
 
+    // Outer ring
     fetch('https://raw.githubusercontent.com/ElephAcadBG/BGSlum/main/outerring.geojson')
       .then(res => res.json())
       .then(data => {
-        map.addSource('outer-ring', { type: 'geojson', data: data });
+        map.addSource('outer-ring', { type: 'geojson', data });
         map.addLayer({
           id: 'outer-ring-layer',
           type: 'line',
           source: 'outer-ring',
-          paint: {
-            'line-color': '#17a2b8',
-            'line-width': 3
-          }
+          paint: { 'line-color': '#17a2b8', 'line-width': 3 }
         });
       });
 
+    // Proposed rings
     fetch('https://raw.githubusercontent.com/ElephAcadBG/BGSlum/main/proposedrings.geojson')
       .then(res => res.json())
       .then(data => {
-        map.addSource('proposed-rings', { type: 'geojson', data: data });
+        map.addSource('proposed-rings', { type: 'geojson', data });
         map.addLayer({
           id: 'proposed-rings-layer',
           type: 'line',
           source: 'proposed-rings',
-          paint: {
-            'line-color': '#ff69b4',
-            'line-width': 2,
-            'line-dasharray': [2, 2]
-          }
+          paint: { 'line-color': '#ff69b4', 'line-width': 2, 'line-dasharray': [2, 2] }
         });
       });
 
+    // === Permanent Building Density (Mapbox Tileset) ===
     map.addSource('building-density', {
       type: 'raster',
-      tiles: [
-        'https://earthengine.googleapis.com/v1/projects/bgbuilding/maps/3e66373e8f669becdd84adbe01c53947-cb955b12b5b71b2ca2143ae6fe2d0014/tiles/{z}/{x}/{y}'
-      ],
+      url: 'mapbox://piale.9rvtrrml',  // your published raster tileset ID
       tileSize: 256
     });
 
@@ -280,9 +242,8 @@
     }, 'waterway-label');
   });
 
-  setInterval(() => {
-    loadTrafficLayer();
-  }, 5 * 60 * 1000);
+  // Refresh traffic layer occasionally
+  setInterval(() => { loadTrafficLayer(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
